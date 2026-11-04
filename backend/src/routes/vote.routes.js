@@ -100,5 +100,16 @@ router.get('/turnout/counties/:countyId', async (req, res, next) => {
   try { res.json(await svc.getTurnoutByConstituency(req.params.countyId)); }
   catch (e) { next(e); }
 });
+// ---------------- PUBLIC RECEIPT VERIFICATION ----------------
+
+router.get('/verify-receipt/:receiptCode', async (req, res, next) => {
+  try {
+    const result = await svc.verifyReceiptCode(req.params.receiptCode);
+    if (!result) {
+      return res.status(404).json({ valid: false, message: 'Receipt code not found.' });
+    }
+    res.json(result);
+  } catch (e) { next(e); }
+});
 
 export default router;

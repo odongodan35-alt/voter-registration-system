@@ -6,8 +6,7 @@ import { useToast } from '../hooks/useToast.jsx';
 import Spinner from '../components/Spinner.jsx';
 
 const STEPS = ['Basic Information', 'Location', 'Registration', 'Review'];
-const initialForm = { fullName: '', dateOfBirth: '', nationality: 'Kenyan', gender: '', phone: '', countyId: '', constituencyId: '', wardId: '', pollingStationId: '', registrationStatus: 'PENDING', notes: '' };
-
+const initialForm = { idNumber: '', fullName: '', dateOfBirth: '', nationality: 'Kenyan', gender: '', phone: '', countyId: '', constituencyId: '', wardId: '', pollingStationId: '', registrationStatus: 'PENDING', notes: '' };
 export default function VoterForm() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
@@ -83,6 +82,10 @@ export default function VoterForm() {
             <div><label className="label">Full Name *</label><input className="input" value={form.fullName} onChange={e => setField('fullName', e.target.value)} /></div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div><label className="label">Date of Birth</label><input type="date" className="input" value={form.dateOfBirth} onChange={e => setField('dateOfBirth', e.target.value)} /></div>
+             <div>
+  <label className="label">National ID Number *</label>
+  <input className="input" value={form.idNumber} onChange={e => setField('idNumber', e.target.value)} placeholder="e.g. 12345678" />
+</div>
               <div><label className="label">Gender (optional)</label>
                 <select className="input" value={form.gender} onChange={e => setField('gender', e.target.value)}>
                   <option value="">Prefer not to say</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option>

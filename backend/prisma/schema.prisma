@@ -121,6 +121,7 @@ model VoterRecord {
   fullName           String             @map("full_name")
   dateOfBirth        DateTime?          @map("date_of_birth")
   nationality        String             @default("Kenyan")
+  idNumber           String?            @unique @map("id_number")
   gender             String?
   phone              String?
   countyId           String             @map("county_id")

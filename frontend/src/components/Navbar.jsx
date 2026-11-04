@@ -27,6 +27,9 @@ export default function Navbar() {
           <Link to="/turnout" className={linkClass('/turnout')}>
             <TrendingUp size={16} /> Turnout
           </Link>
+           <Link to="/verify-vote" className={linkClass('/verify-vote')}>
+  <ShieldCheck size={16} /> Verify
+</Link>
           <Link to="/login" className="btn-secondary">Sign In</Link>
           <Link to="/signup" className="btn-primary hidden sm:inline-flex">Create Account</Link>
         </div>

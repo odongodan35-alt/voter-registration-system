@@ -11,6 +11,7 @@ const voterSchema = z.object({
   fullName: z.string().min(2),
   dateOfBirth: z.string().optional().nullable(),
   nationality: z.string().default('Kenyan'),
+  idNumber: z.string().min(4).optional().nullable(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional().nullable(),
   phone: z.string().optional().nullable(),
   countyId: z.string().uuid(), constituencyId: z.string().uuid(), wardId: z.string().uuid(),

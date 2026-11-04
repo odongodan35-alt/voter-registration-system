@@ -1,6 +1,6 @@
 import { prisma } from '../config/prisma.js';
 
-const genRef = () => `VRS-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+const genRef = (idNumber) => idNumber ? `VOTER-${idNumber}` : `VRS-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
 export const checkDuplicates = async ({ fullName, phone, dateOfBirth }) => {
   const where = { OR: [] };

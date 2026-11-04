@@ -3,13 +3,20 @@ import { ShieldCheck } from 'lucide-react';
 
 export default function AuthLayout() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-md">
-        <div className="mb-4 flex items-center justify-center gap-2 text-brand dark:text-blue-400">
-          <ShieldCheck /> <span className="font-bold">Voter Registration MS</span>
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+      
+      {/* FIXED BACKGROUND IMAGE */}
+      <div className="fixed inset-0 z-0">
+        <img src="/hero-voting.png" alt="background" className="h-full w-full object-cover opacity-30 blur-sm scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-slate-900/70 to-indigo-900/60 backdrop-blur-[3px]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md">
+        <div className="mb-6 flex items-center justify-center gap-2 text-white drop-shadow-md">
+          <ShieldCheck size={28} /> <span className="text-xl font-bold tracking-wide">VRS Kenya</span>
         </div>
         <Outlet />
-        <p className="mt-4 text-center text-xs text-slate-500">
+        <p className="mt-6 text-center text-xs text-white/70">
           Demo/Administrative System — Not an official election registration platform.
         </p>
       </div>

@@ -24,6 +24,8 @@ import Candidates from './pages/admin/Candidates.jsx';
 import Turnout from './pages/Turnout.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
+import VerifyVote from './pages/VerifyVote.jsx';
+<Route path="/verify-vote" element={<VerifyVote />} />
 
 export default function App() {
   return (

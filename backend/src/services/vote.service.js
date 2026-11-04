@@ -289,3 +289,34 @@ export const getTurnoutByConstituency = async (countyId) => {
     constituencies: data
   };
 };
+/**
+ * Verify a receipt code. Returns whether it exists and when it was cast,
+ * but NEVER returns the candidate or position (vote privacy).
+ */
+export const verifyReceiptCode = async (receiptCode) => {
+  const vote = await prisma.vote.findUnique({
+    where: { receiptCode: receiptCode.trim().toUpperCase() },
+    select: {
+      castAt: true,
+      election: { select: { title: true } }
+    }
+  });
+
+  if (!vote) return null;
+
+  // Find how many total positions they voted on using the base code
+  // (Because votes are saved as CODE, CODE-1, CODE-2, etc.)
+  const allVotes = await prisma.vote.findMany({
+    where: {
+      receiptCode: { startsWith: receiptCode.trim().toUpperCase() }
+    },
+    select: { positionId: true }
+  });
+
+  return {
+    valid: true,
+    castAt: vote.castAt,
+    electionTitle: vote.election?.title || 'General Election',
+    positionsVoted: allVotes.length
+  };
+};

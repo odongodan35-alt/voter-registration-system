@@ -21,8 +21,8 @@ export default function Sidebar({ open, onClose }) {
   return (
     <>
       {open && <div onClick={onClose} className="fixed inset-0 z-30 bg-black/40 md:hidden" />}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-slate-200 bg-white transition-transform dark:border-slate-800 dark:bg-slate-900 md:static md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800">
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-white/20 bg-white/70 backdrop-blur-xl transition-transform dark:border-slate-700/50 dark:bg-slate-900/70 md:static md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex h-16 items-center justify-between border-b border-white/20 px-4 dark:border-slate-700/50">
           <span className="font-bold text-brand dark:text-blue-400">VRS Admin</span>
           <button onClick={onClose} className="md:hidden" aria-label="Close menu"><X size={20} /></button>
         </div>
