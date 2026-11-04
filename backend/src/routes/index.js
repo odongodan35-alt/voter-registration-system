@@ -1,0 +1,26 @@
+import { Router } from 'express';
+import auth from './auth.routes.js';
+import voters from './voter.routes.js';
+import locations from './location.routes.js';
+import dashboard from './dashboard.routes.js';
+import users from './user.routes.js';
+import audit from './audit.routes.js';
+import reports from './report.routes.js';
+import elections from './election.routes.js';
+import positions from './position.routes.js';
+import candidates from './candidate.routes.js';
+import vote from './vote.routes.js';
+
+const router = Router();
+router.use('/auth', auth);
+router.use('/voters', voters);
+router.use('/locations', locations);
+router.use('/dashboard', dashboard);
+router.use('/users', users);
+router.use('/audit-logs', audit);
+router.use('/reports', reports);
+router.use('/elections', elections);
+router.use('/positions', positions);
+router.use('/candidates', candidates);
+router.use('/vote', vote);
+export default router;

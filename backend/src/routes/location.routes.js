@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import * as c from '../controllers/location.controller.js';
+import { authenticate } from '../middleware/auth.js';
+const router = Router();
+router.use(authenticate);
+router.get('/counties', c.counties);
+router.get('/counties/:id/constituencies', c.constituencies);
+router.get('/constituencies/:id/wards', c.wards);
+router.get('/wards/:id/polling-stations', c.stations);
+export default router;

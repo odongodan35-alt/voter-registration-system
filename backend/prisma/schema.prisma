@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMINISTRATOR
+  REGISTRATION_OFFICER
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum RegistrationStatus {
+  PENDING
+  VERIFIED
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ElectionStatus {
+  UPCOMING
+  OPEN
+  CLOSED
+}
+
+enum PositionScope {
+  NATIONAL
+  COUNTY
+  CONSTITUENCY
+  WARD
+}
+
+model User {
+  id                  String        @id @default(uuid())
+  fullName            String        @map("full_name")
+  email               String        @unique
+  phone               String        @unique
+  passwordHash        String        @map("password_hash")
+  role                Role          @default(VIEWER)
+  status              UserStatus    @default(ACTIVE)
+  failedAttempts      Int           @default(0) @map("failed_attempts")
+  lockedUntil         DateTime?     @map("locked_until")
+  lastLogin           DateTime?     @map("last_login")
+  twoFactorEnabled    Boolean       @default(false) @map("two_factor_enabled")
+  twoFactorSecret     String?       @map("two_factor_secret")
+  recoveryCodes       String[]      @map("recovery_codes")
+  pendingLoginToken   String?       @map("pending_login_token")
+  pendingLoginExpiry  DateTime?     @map("pending_login_expiry")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+  voterRecords        VoterRecord[] @relation("RegisteredBy")
+  auditLogs           AuditLog[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+model County {
+  id             String         @id @default(uuid())
+  name           String         @unique
+  code           String         @unique
+  constituencies Constituency[]
+  voterRecords   VoterRecord[]
+  candidates     Candidate[]
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  @@map("counties")
+}
+
+model Constituency {
+  id           String         @id @default(uuid())
+  name         String
+  code         String         @unique
+  countyId     String         @map("county_id")
+  county       County         @relation(fields: [countyId], references: [id], onDelete: Cascade)
+  wards        Ward[]
+  voterRecords VoterRecord[]
+  candidates   Candidate[]
+
+  @@unique([countyId, name])
+  @@map("constituencies")
+}
+
+model Ward {
+  id              String           @id @default(uuid())
+  name            String
+  code            String           @unique
+  constituencyId  String           @map("constituency_id")
+  constituency    Constituency     @relation(fields: [constituencyId], references: [id], onDelete: Cascade)
+  pollingStations PollingStation[]
+  voterRecords    VoterRecord[]
+
+  @@unique([constituencyId, name])
+  @@map("wards")
+}
+
+model PollingStation {
+  id           String        @id @default(uuid())
+  name         String
+  code         String        @unique
+  location     String?
+  wardId       String        @map("ward_id")
+  ward         Ward          @relation(fields: [wardId], references: [id], onDelete: Cascade)
+  voterRecords VoterRecord[]
+
+  @@map("polling_stations")
+}
+
+model VoterRecord {
+  id                 String             @id @default(uuid())
+  referenceNumber    String             @unique @map("reference_number")
+  fullName           String             @map("full_name")
+  dateOfBirth        DateTime?          @map("date_of_birth")
+  nationality        String             @default("Kenyan")
+  gender             String?
+  phone              String?
+  countyId           String             @map("county_id")
+  constituencyId     String             @map("constituency_id")
+  wardId             String             @map("ward_id")
+  pollingStationId   String?            @map("polling_station_id")
+  registrationStatus RegistrationStatus @default(PENDING) @map("registration_status")
+  notes              String?
+  registeredById     String             @map("registered_by")
+  registeredBy       User               @relation("RegisteredBy", fields: [registeredById], references: [id])
+  county             County             @relation(fields: [countyId], references: [id])
+  constituency       Constituency       @relation(fields: [constituencyId], references: [id])
+  ward               Ward               @relation(fields: [wardId], references: [id])
+  pollingStation     PollingStation?    @relation(fields: [pollingStationId], references: [id])
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  votes              Vote[]
+
+  @@index([fullName])
+  @@index([countyId])
+  @@index([registrationStatus])
+  @@map("voter_records")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String
+  recordId    String?  @map("record_id")
+  description String
+  ipAddress   String?  @map("ip_address")
+  timestamp   DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model Election {
+  id             String         @id @default(uuid())
+  title          String
+  description    String?
+  status         ElectionStatus @default(UPCOMING)
+  resultsVisible Boolean        @default(false) @map("results_visible")
+  startsAt       DateTime?      @map("starts_at")
+  endsAt         DateTime?      @map("ends_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  positions      Position[]
+  votes          Vote[]
+
+  @@map("elections")
+}
+
+model Position {
+  id           String        @id @default(uuid())
+  title        String
+  description  String?
+  scope        PositionScope
+  order        Int           @default(0)
+  electionId   String        @map("election_id")
+  election     Election      @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  candidates   Candidate[]
+  votes        Vote[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  @@unique([electionId, title, scope])
+  @@map("positions")
+}
+
+model Candidate {
+  id             String        @id @default(uuid())
+  name           String
+  party          String?
+  slogan         String?
+  bio            String?
+  photoUrl       String?       @map("photo_url")
+  positionId     String        @map("position_id")
+  position       Position      @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  countyId       String?       @map("county_id")
+  county         County?       @relation(fields: [countyId], references: [id])
+  constituencyId String?       @map("constituency_id")
+  constituency   Constituency? @relation(fields: [constituencyId], references: [id])
+  votes          Vote[]
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  @@index([positionId])
+  @@map("candidates")
+}
+
+model Vote {
+  id            String      @id @default(uuid())
+  receiptCode   String      @unique @map("receipt_code")
+  electionId    String      @map("election_id")
+  election      Election    @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  positionId    String      @map("position_id")
+  position      Position    @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  candidateId   String      @map("candidate_id")
+  candidate     Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  voterId       String      @map("voter_id")
+  voter         VoterRecord @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  castAt        DateTime    @default(now()) @map("cast_at")
+
+  @@unique([voterId, positionId, electionId])
+  @@index([electionId, positionId])
+  @@index([candidateId])
+  @@map("votes")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}

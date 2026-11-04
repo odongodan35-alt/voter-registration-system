@@ -1,0 +1,2 @@
+export const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' }) : '—';
+export const fmtDateTime = (d) => d ? new Date(d).toLocaleString() : '—';
