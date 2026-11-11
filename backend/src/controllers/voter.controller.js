@@ -1,6 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import * as voterService from '../services/voter.service.js';
 import { audit } from '../middleware/audit.js';
+import { sendRegistrationSMS } from '../services/sms.service.js';
 
 export const checkDup = asyncHandler(async (req, res) => {
   const dupes = await voterService.checkDuplicates(req.query);
@@ -10,6 +11,12 @@ export const checkDup = asyncHandler(async (req, res) => {
 export const create = asyncHandler(async (req, res) => {
   const v = await voterService.createVoter(req.validated.body, req.user.id);
   await audit('RECORD_CREATED', `Created registration ${v.referenceNumber}`)(req, v.id);
+  
+  // Send SMS if phone number was provided
+  if (v.phone) {
+    sendRegistrationSMS(v.phone, v.fullName, v.referenceNumber).catch(console.error);
+  }
+
   res.status(201).json({ message: 'Registration saved', record: v });
 });
 

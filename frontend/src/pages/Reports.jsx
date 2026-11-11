@@ -29,6 +29,22 @@ export default function Reports() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Reports</h1>
         <button onClick={exportCsv} className="btn-primary"><Download size={16} /> Export CSV</button>
+      <button onClick={async () => {
+  try {
+    const res = await api.get('/reports/audit-pdf', { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Election-Audit-Report.pdf');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    toast.error('Failed to generate report');
+  }
+}} className="btn-primary">
+  <FileText size={16} /> Download Audit PDF
+</button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

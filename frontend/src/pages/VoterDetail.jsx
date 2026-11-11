@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit, Printer, Archive } from 'lucide-react';
+import { ArrowLeft, Edit, Printer, Archive, FileText } from 'lucide-react';
 import api from '../services/api.js';
 import Spinner from '../components/Spinner.jsx';
 import Modal from '../components/Modal.jsx';
@@ -31,6 +31,23 @@ export default function VoterDetail() {
     } catch { toast.error('Archive failed'); }
   };
 
+  const downloadIdCard = async () => {
+    try {
+      const res = await api.get(`/voters/${id}/card`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Voter-ID-${v.referenceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('ID Card downloaded');
+    } catch (err) {
+      toast.error('Failed to generate ID card. Make sure the backend is running.');
+    }
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Spinner size={28} /></div>;
   if (!v) return <p>Record not found.</p>;
 
@@ -42,6 +59,7 @@ export default function VoterDetail() {
         <button onClick={() => nav(-1)} className="btn-secondary"><ArrowLeft size={16} /> Back</button>
         <div className="flex gap-2">
           {canEdit && <Link to={`/voters/${id}/edit`} className="btn-secondary"><Edit size={16} /> Edit</Link>}
+          <button onClick={downloadIdCard} className="btn-primary"><FileText size={16} /> Download ID</button>
           <button onClick={() => window.print()} className="btn-secondary"><Printer size={16} /> Print</button>
           {canEdit && <button onClick={() => setConfirmOpen(true)} className="btn-danger"><Archive size={16} /> Archive</button>}
         </div>
@@ -59,6 +77,7 @@ export default function VoterDetail() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Section title="Personal Information">
             <Row label="Full Name" value={v.fullName} />
+            <Row label="ID Number" value={v.idNumber || '—'} />
             <Row label="Date of Birth" value={fmtDate(v.dateOfBirth)} />
             <Row label="Nationality" value={v.nationality} />
             <Row label="Gender" value={v.gender || '—'} />
